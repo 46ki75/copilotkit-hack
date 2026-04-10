@@ -3,6 +3,8 @@ This is the main entry point for the agent.
 It defines the workflow graph, state, tools, nodes and edges.
 """
 
+import os
+
 from copilotkit import CopilotKitMiddleware
 from langchain.agents import create_agent
 
@@ -14,8 +16,16 @@ from src.todos import AgentState, todo_tools
 from src.a2ui_dynamic_schema import generate_a2ui
 from src.a2ui_fixed_schema import search_flights
 
+from langchain_openai import ChatOpenAI
+
+model = ChatOpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    model="minimax/minimax-m2.5",
+)
+
 agent = create_agent(
-    model="openai:gpt-4.1",
+    model,
     tools=[query_data, *todo_tools, generate_a2ui, search_flights],
     middleware=[CopilotKitMiddleware()],
     state_schema=AgentState,
